@@ -19,8 +19,7 @@ module Calculator =
     type EnterNumber = int list
 
     let formatNumber (num:EnterNumber) =
-        num
-            |> List.fold (fun acc i -> acc + i.ToString()) ""
+        num |> List.fold (fun acc i -> acc + i.ToString()) ""
 
     let addDigit digit (num:EnterNumber) =
         match digit,num,num.Length < 10 with 
@@ -30,7 +29,11 @@ module Calculator =
         | _,_,_      -> num @ [digit]
 
     let float (num:EnterNumber) =
-        0
+        num
+            |> List.rev
+            |> List.mapi (fun item index -> (item,index))
+            |> List.fold (fun acc (index,item)  -> 
+                acc + (float item) * (10.0**(float index))) 0.0
  
     type state = 
     | EnterNumber of EnterNumber
@@ -63,7 +66,8 @@ module Calculator =
             | Minus  -> (-)
             
         match calculator with
-        | Cons(EnterNumber rhs, Cons(Operator op,Cons(EnterNumber lhs,tail))) -> Nil
+        | Cons(EnterNumber rhs, Cons(Operator op,Cons(EnterNumber lhs,tail))) -> 
+            Cons(Result ((opFor op) (float lhs) (float rhs)),tail)
         | _ -> Cons(StartEnterNumber,calculator)
 
     let press key calculator = 
@@ -82,6 +86,7 @@ module Calculator =
         match calculator with
         | Nil                     -> ""
         | Cons((EnterNumber n),_) -> sprintf "%s." (formatNumber n)
+        | Cons(Result n,_)        -> sprintf "%f" n
         
 
 open Calculator
@@ -132,7 +137,8 @@ module ``Entering integers``=
                 |> press (Number 1)
                 |> display = "1." @>
 
-    let operators = [Equals;OperatorKey Plus;OperatorKey Minus;OperatorKey Times;OperatorKey Divide] |> List.toSeq
+    
+    let operators = [[|Equals|];[|OperatorKey Plus|];[|OperatorKey Minus|];[|OperatorKey Times|];[|OperatorKey Divide|]] |> List.toSeq
     [<Theory>]
     [<PropertyData("operators")>]
     let ``Pressing an operator or equals after a number starts entering a new number`` (operator)= 
@@ -153,7 +159,8 @@ module ``Integer math`` =
     let oncalculator = calculator |> press AC
     let numbers numbers = numbers |> List.map Number 
 
-    [<Fact>] 
+
+    [<Fact>]
     let ``Basic addition`` ()=
         test <@ oncalculator
                 |> presskeys (numbers [1;2;3])

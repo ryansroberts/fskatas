@@ -58,12 +58,12 @@
             |> Seq.takeWhile ((<>) End)
 
     [<Fact>]
-    let ``When we have no symbols the End symbol always follows the Start symbol`` ()=
+    let ``When we have no input symbols the End symbol always follows the Start symbol`` ()=
         test <@ train DefaultModel NoSymbols
                 |> Map.find Start |> Map.toList = [(End,1.0)] @>
 
     [<Fact>]
-    let ``When we have a single symbol the probability it follows the start symbol is one`` ()=
+    let ``When we have a single input symbol the probability it follows the start symbol is one`` ()=
         test <@ train DefaultModel (Symbols ["a"])
                 |> Map.find Start |> Map.toList = [(Symbol("a"),1.0)] @>
 

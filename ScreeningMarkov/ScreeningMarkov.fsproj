@@ -57,6 +57,7 @@
     <None Include="Script.fsx" />
     <None Include="packages.config" />
     <Compile Include="Calculator.fs" />
+    <Compile Include="ScreeningTask.fs" />
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
